@@ -1,16 +1,12 @@
+
+
+
+
+
+```yaml
 package:
   name: bpy
   version: "4.3.0"
-
-# source:
-#   - url: https://files.pythonhosted.org/packages/7f/da/c255b626cab58c69c49f4a65d0410b36aa1086dc63862d1c3de653f0a5a0/bpy-4.3.0-cp311-cp311-win_amd64.whl # [win64]
-#     sha256: 1a7b2c516aa7a95c31fcaae8842addd07fa86c1ce4768e88a34b480d17e2e93a
-#   - url: https://files.pythonhosted.org/packages/9c/4d/897bf3c247d7c6a4e75397f4c5dd5d201fb147981d2271ac35ac955959ab/bpy-4.3.0-cp311-cp311-manylinux_2_28_x86_64.whl # [linux64]
-#     sha256: 1620199392a7e7aab58672aa47c50b3c5b1e4d39d46af5a7f9bbe2af561ea942
-#   - url: https://files.pythonhosted.org/packages/81/39/4e763b150ff05412ab25d5eae91da7f0ade474b5d66509b39a67066d35ec/bpy-4.3.0-cp311-cp311-macosx_11_0_x86_64.whl # [osx and x86_64]
-#     sha256: 490aa94699664a99eee755047485a3ad70470fc6267c55a73459660f52299ade
-#   - url: https://files.pythonhosted.org/packages/c1/fc/5902fa508a13f4f1669bc2e2cd8f37adf1caeeed0a344f627c0ffc3bdc40/bpy-4.3.0-cp311-cp311-macosx_11_0_arm64.whl # [osx and arm64]
-#     sha256: 82c3486e9762e8cfce4bbc1d6752f5625da8515f6b217e02810350627d693897
 
 source:
   - if: win64
@@ -44,3 +40,214 @@ about:
   homepage: https://pypi.org/project/bpy/
   license: GPL-3.0
   summary: Blender as a Python Module
+
+```
+
+In the package above I need to :
+
+1. add the bbuild/install section and
+2. add the test that it is actually installed
+
+
+I'll help you add the build/install section and a test section to verify the installation. Here's the modified YAML:
+
+```yaml
+package:
+  name: bpy
+  version: "4.3.0"
+
+source:
+  - if: win64
+    then:
+      url: "https://files.pythonhosted.org/packages/7f/da/c255b626cab58c69c49f4a65d0410b36aa1086dc63862d1c3de653f0a5a0/bpy-4.3.0-cp311-cp311-win_amd64.whl"
+      sha256: 1a7b2c516aa7a95c31fcaae8842addd07fa86c1ce4768e88a34b480d17e2e93a
+  - if: linux64
+    then:
+      url: "https://files.pythonhosted.org/packages/9c/4d/897bf3c247d7c6a4e75397f4c5dd5d201fb147981d2271ac35ac955959ab/bpy-4.3.0-cp311-cp311-manylinux_2_28_x86_64.whl"
+      sha256: 1620199392a7e7aab58672aa47c50b3c5b1e4d39d46af5a7f9bbe2af561ea942
+  - if: osx and x86_64
+    then:
+      url: "https://files.pythonhosted.org/packages/81/39/4e763b150ff05412ab25d5eae91da7f0ade474b5d66509b39a67066d35ec/bpy-4.3.0-cp311-cp311-macosx_11_0_x86_64.whl"
+      sha256: 490aa94699664a99eee755047485a3ad70470fc6267c55a73459660f52299ade
+  - if: osx and arm64
+    then:
+      url: "https://files.pythonhosted.org/packages/c1/fc/5902fa508a13f4f1669bc2e2cd8f37adf1caeeed0a344f627c0ffc3bdc40/bpy-4.3.0-cp311-cp311-macosx_11_0_arm64.whl"
+      sha256: 82c3486e9762e8cfce4bbc1d6752f5625da8515f6b217e02810350627d693897
+
+build:
+  number: 0
+  script: {{ PYTHON }} -m pip install --no-deps --ignore-installed .
+
+requirements:
+  build:
+    - python =3.11
+    - pip
+  host:
+    - python =3.11
+    - pip
+  run:
+    - python =3.11
+
+test:
+  imports:
+    - bpy
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  homepage: https://pypi.org/project/bpy/
+  license: GPL-3.0
+  summary: Blender as a Python Module
+```
+
+I've added:
+
+1. The `build` section which:
+   - Specifies the build number (starting at 0)
+   - Includes the installation script using pip to install the wheel file
+
+2. The `test` section which:
+   - Tests that the `bpy` module can be imported
+   - Runs `pip check` to verify there are no dependency conflicts
+   - Requires pip for the test
+
+This should properly install the package and verify that it's working correctly.
+
+The script line is giving a schema error
+```
+  script: {{ PYTHON }} -m pip install --no-deps --ignore-installed .
+
+chema: Script: Incorrect type. Expected "string | array | nul
+YAML: Unexpected scalar at node end
+```
+
+Let's fix the script line by properly formatting it with quotes. Here's the corrected version:
+
+```yaml
+package:
+  name: bpy
+  version: "4.3.0"
+
+source:
+  - if: win64
+    then:
+      url: "https://files.pythonhosted.org/packages/7f/da/c255b626cab58c69c49f4a65d0410b36aa1086dc63862d1c3de653f0a5a0/bpy-4.3.0-cp311-cp311-win_amd64.whl"
+      sha256: 1a7b2c516aa7a95c31fcaae8842addd07fa86c1ce4768e88a34b480d17e2e93a
+  - if: linux64
+    then:
+      url: "https://files.pythonhosted.org/packages/9c/4d/897bf3c247d7c6a4e75397f4c5dd5d201fb147981d2271ac35ac955959ab/bpy-4.3.0-cp311-cp311-manylinux_2_28_x86_64.whl"
+      sha256: 1620199392a7e7aab58672aa47c50b3c5b1e4d39d46af5a7f9bbe2af561ea942
+  - if: osx and x86_64
+    then:
+      url: "https://files.pythonhosted.org/packages/81/39/4e763b150ff05412ab25d5eae91da7f0ade474b5d66509b39a67066d35ec/bpy-4.3.0-cp311-cp311-macosx_11_0_x86_64.whl"
+      sha256: 490aa94699664a99eee755047485a3ad70470fc6267c55a73459660f52299ade
+  - if: osx and arm64
+    then:
+      url: "https://files.pythonhosted.org/packages/c1/fc/5902fa508a13f4f1669bc2e2cd8f37adf1caeeed0a344f627c0ffc3bdc40/bpy-4.3.0-cp311-cp311-macosx_11_0_arm64.whl"
+      sha256: 82c3486e9762e8cfce4bbc1d6752f5625da8515f6b217e02810350627d693897
+
+build:
+  number: 0
+  script: "{{ PYTHON }} -m pip install --no-deps --ignore-installed ."
+
+requirements:
+  build:
+    - python =3.11
+    - pip
+  host:
+    - python =3.11
+    - pip
+  run:
+    - python =3.11
+
+test:
+  imports:
+    - bpy
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  homepage: https://pypi.org/project/bpy/
+  license: GPL-3.0
+  summary: Blender as a Python Module
+```
+
+I've added quotes around the script command to fix the schema error. The script line is now:
+```yaml
+  script: "{{ PYTHON }} -m pip install --no-deps --ignore-installed ."
+```
+
+This should now validate correctly according to the conda-build schema.
+
+
+```
+╭─ Running build script
+ │ │ + '{{' PYTHON '}}' -m pip install --no-deps --ignore-installed .
+ │ │ $SRC_DIR/conda_build.sh: line 10: {{: command not found
+ │ │ × error Script failed with status 127
+ │ │ × error Work directory: '/Users/zcpowers/Documents/Projects/zcp-forge/bpy/output/bld/rattler-build_bpy_17392
+```
+
+Ah, I see the issue. For wheel files, we need to use a slightly different installation approach. Here's the corrected version:
+
+```yaml
+package:
+  name: bpy
+  version: "4.3.0"
+
+source:
+  - if: win64
+    then:
+      url: "https://files.pythonhosted.org/packages/7f/da/c255b626cab58c69c49f4a65d0410b36aa1086dc63862d1c3de653f0a5a0/bpy-4.3.0-cp311-cp311-win_amd64.whl"
+      sha256: 1a7b2c516aa7a95c31fcaae8842addd07fa86c1ce4768e88a34b480d17e2e93a
+  - if: linux64
+    then:
+      url: "https://files.pythonhosted.org/packages/9c/4d/897bf3c247d7c6a4e75397f4c5dd5d201fb147981d2271ac35ac955959ab/bpy-4.3.0-cp311-cp311-manylinux_2_28_x86_64.whl"
+      sha256: 1620199392a7e7aab58672aa47c50b3c5b1e4d39d46af5a7f9bbe2af561ea942
+  - if: osx and x86_64
+    then:
+      url: "https://files.pythonhosted.org/packages/81/39/4e763b150ff05412ab25d5eae91da7f0ade474b5d66509b39a67066d35ec/bpy-4.3.0-cp311-cp311-macosx_11_0_x86_64.whl"
+      sha256: 490aa94699664a99eee755047485a3ad70470fc6267c55a73459660f52299ade
+  - if: osx and arm64
+    then:
+      url: "https://files.pythonhosted.org/packages/c1/fc/5902fa508a13f4f1669bc2e2cd8f37adf1caeeed0a344f627c0ffc3bdc40/bpy-4.3.0-cp311-cp311-macosx_11_0_arm64.whl"
+      sha256: 82c3486e9762e8cfce4bbc1d6752f5625da8515f6b217e02810350627d693897
+
+build:
+  number: 0
+  script: "pip install --no-deps *.whl"
+
+requirements:
+  build:
+    - python =3.11
+    - pip
+  host:
+    - python =3.11
+    - pip
+  run:
+    - python =3.11
+
+test:
+  imports:
+    - bpy
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  homepage: https://pypi.org/project/bpy/
+  license: GPL-3.0
+  summary: Blender as a Python Module
+```
+
+I've changed the build script to directly install the wheel file using:
+```yaml
+  script: "pip install --no-deps *.whl"
+```
+
+This should work better for wheel file installation.
